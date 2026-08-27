@@ -177,6 +177,11 @@ type ServerTransportConfig struct {
 	QUIC QUICOptions `json:"quic,omitempty"`
 	// TLS specifies TLS settings for the connection from the client.
 	TLS TLSServerConfig `json:"tls,omitempty"`
+	// WebsocketPaths specifies the HTTP paths accepted for the websocket handshake
+	// when clients connect with protocol "websocket" or "wss". Each path must start
+	// with "/" and contain no space or "?". If this value is empty, requests for any
+	// path are accepted.
+	WebsocketPaths []string `json:"websocketPaths,omitempty"`
 }
 
 func (c *ServerTransportConfig) Complete() {

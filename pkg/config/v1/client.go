@@ -107,8 +107,9 @@ type ClientTransportConfig struct {
 	// WebsocketPath specifies the HTTP path used for the websocket handshake when
 	// Protocol is "websocket" or "wss". It must start with "/". This is useful when
 	// frps is placed behind a reverse proxy (e.g. nginx) that routes a specific path
-	// to frps. If this value is "", the default path "/~!frp" is used. The reverse
-	// proxy is responsible for forwarding this path to frps' default "/~!frp" path.
+	// to frps. If this value is "", the default path "/~!frp" is used. frps accepts
+	// any path by default, so the reverse proxy may forward this path as is, unless
+	// frps restricts the accepted paths with transport.websocketPaths.
 	WebsocketPath string `json:"websocketPath,omitempty"`
 	// WireProtocol specifies the frpc/frps internal wire protocol version.
 	// Valid values are "v1" and "v2". By default, this value is "v1".

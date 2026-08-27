@@ -105,8 +105,9 @@ transport.protocol = "tcp"
 
 # HTTP path used for the websocket handshake, only works when protocol is websocket or wss.
 # Must start with "/", default is "/~!frp". Useful when frps is behind a reverse proxy
-# (e.g. nginx) that routes a specific path to frps; the reverse proxy is responsible for
-# forwarding this path to frps' default "/~!frp" path.
+# (e.g. nginx) that routes a specific path to frps. frps accepts any path by default, so
+# the reverse proxy may forward this path as is, unless frps restricts the accepted paths
+# with transport.websocketPaths.
 # transport.websocketPath = "/frp"
 
 # FRP wire protocol used inside the selected transport.

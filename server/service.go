@@ -15,7 +15,6 @@
 package server
 
 import (
-	"bytes"
 	"context"
 	"crypto/tls"
 	"fmt"
@@ -283,11 +282,17 @@ func NewService(cfg *v1.ServerConfig) (*Service, error) {
 	}
 
 	// Listen for accepting connections from client using websocket protocol.
-	websocketPrefix := []byte("GET " + netpkg.FrpWebsocketPath)
-	websocketLn := svr.muxer.Listen(0, uint32(len(websocketPrefix)), func(data []byte) bool {
-		return bytes.Equal(data, websocketPrefix)
-	})
-	svr.websocketListener = netpkg.NewWebsocketListener(websocketLn)
+	// If no path is configured, any path is accepted, unless the vhost HTTP service
+	// shares this port, in which case grabbing every GET request would break it.
+	websocketPaths := cfg.Transport.WebsocketPaths
+	if len(websocketPaths) == 0 && httpMuxOn {
+		websocketPaths = []string{netpkg.FrpWebsocketPath}
+		log.Warnf("vhostHTTPPort is the same as bindPort, only websocket path %s is accepted, "+
+			"set transport.websocketPaths to accept other paths", netpkg.FrpWebsocketPath)
+	}
+	websocketNeedBytesNum, websocketMatchFn := netpkg.MatchWebsocketFunc(websocketPaths)
+	websocketLn := svr.muxer.Listen(0, websocketNeedBytesNum, websocketMatchFn)
+	svr.websocketListener = netpkg.NewWebsocketListener(websocketLn, websocketPaths...)
 
 	// Create http vhost muxer.
 	if cfg.VhostHTTPPort > 0 {

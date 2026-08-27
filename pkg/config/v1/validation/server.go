@@ -17,6 +17,7 @@ package validation
 import (
 	"fmt"
 	"slices"
+	"strings"
 
 	"github.com/samber/lo"
 
@@ -51,6 +52,15 @@ func (v *ConfigValidator) ValidateServerConfig(c *v1.ServerConfig) (Warning, err
 	errs = AppendError(errs, ValidatePort(c.VhostHTTPPort, "vhostHTTPPort"))
 	errs = AppendError(errs, ValidatePort(c.VhostHTTPSPort, "vhostHTTPSPort"))
 	errs = AppendError(errs, ValidatePort(c.TCPMuxHTTPConnectPort, "tcpMuxHTTPConnectPort"))
+
+	for _, path := range c.Transport.WebsocketPaths {
+		if !strings.HasPrefix(path, "/") {
+			errs = AppendError(errs, fmt.Errorf("invalid transport.websocketPaths [%s], it must start with \"/\"", path))
+		}
+		if strings.ContainsAny(path, " ?") {
+			errs = AppendError(errs, fmt.Errorf("invalid transport.websocketPaths [%s], it must not contain space or \"?\"", path))
+		}
+	}
 
 	for _, p := range c.HTTPPlugins {
 		if !lo.Every(SupportedHTTPPluginOps, p.Ops) {

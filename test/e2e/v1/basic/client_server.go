@@ -140,6 +140,32 @@ var _ = ginkgo.Describe("[Feature: Client-Server]", func() {
 		defineClientServerTest("wss", f, configures)
 	})
 
+	ginkgo.Describe("Websocket path", func() {
+		defineClientServerTest("custom path accepted by default", f, &generalTestConfigures{
+			client: `transport.protocol = "websocket"
+			transport.websocketPath = "/custom"`,
+		})
+
+		defineClientServerTest("custom path in server allow list", f, &generalTestConfigures{
+			server: `transport.websocketPaths = ["/custom"]`,
+			client: `transport.protocol = "websocket"
+			transport.websocketPath = "/custom"`,
+		})
+
+		defineClientServerTest("custom path not in server allow list", f, &generalTestConfigures{
+			server: `transport.websocketPaths = ["/other"]`,
+			client: `transport.protocol = "websocket"
+			transport.websocketPath = "/custom"`,
+			expectError: true,
+		})
+
+		defineClientServerTest("default path not in server allow list", f, &generalTestConfigures{
+			server:      `transport.websocketPaths = ["/custom"]`,
+			client:      `transport.protocol = "websocket"`,
+			expectError: true,
+		})
+	})
+
 	ginkgo.Describe("Authentication", func() {
 		defineClientServerTest("Token Correct", f, &generalTestConfigures{
 			server: `auth.token = "123456"`,

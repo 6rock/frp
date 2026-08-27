@@ -40,6 +40,13 @@ transport.maxPoolCount = 5
 # If negative, keep-alive probes are disabled.
 # transport.tcpKeepalive = 7200
 
+# HTTP paths accepted for the websocket handshake of clients using the websocket or wss protocol.
+# Each path must start with "/". If it's not set, requests for any path are accepted, which makes it
+# easy to put frps behind a reverse proxy that routes an arbitrary path to it.
+# Note: if vhostHTTPPort is the same as bindPort, only the default path "/~!frp" is accepted unless
+# this option is set, otherwise the websocket listener would take over all the vhost HTTP requests.
+# transport.websocketPaths = ["/~!frp", "/frp"]
+
 # transport.tls.force specifies whether to only accept TLS-encrypted connections. By default, the value is false.
 transport.tls.force = false
 
